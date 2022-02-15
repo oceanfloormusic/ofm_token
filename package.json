@@ -1,0 +1,29 @@
+{
+    "name": "$OFM",
+    "version": "1.0.0",
+    "description": "Ocean Floor Music Token",
+    "main": "truffle-config.js",
+    "directories": {
+      "test": "test"
+    },
+    "scripts": {
+      "start": "npm run build",
+      "build": "truffle compile",
+      "flatten": "npx truffle-flattener ./contracts/token/OfmERC.sol > ./build/FlatOFM.sol",
+      "deploy:ropsten": "truffle migrate --network ropsten",
+      "deploy:private": "truffle migrate --network private",
+      "deploy:development": "truffle migrate --network development",
+      "prebuild": "rimraf ./build/contracts/*"
+    },
+    "keywords": [],
+    "private": true,
+    "author": "Naveen Kumar <contact.naveen@vegavid.com>",
+    "license": "ISC",
+    "dependencies": {
+      "dotenv": "^7.0.0",
+      "rimraf": "^2.6.3",
+      "chai": "^4.2.0",
+      "@openzeppelin/test-helpers": "0.5.15",
+      "truffle-flattener": "^1.5.0"
+    }
+  }
