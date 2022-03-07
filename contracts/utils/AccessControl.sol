@@ -98,7 +98,7 @@ contract AccessControl {
    *
    * @param _mask bitmask representing a set of features to enable/disable
    */
-  function updateFeatures(uint256 _mask) public {
+  function updateFeatures(uint256 _mask) external {
     // delegate call to `updateRole`
     updateRole(address(0), _mask);
   }

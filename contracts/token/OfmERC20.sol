@@ -5,6 +5,7 @@ import "../utils/AddressUtils.sol";
 import "../utils/AccessControl.sol";
 import "./ERC20Receiver.sol";
 import "../interfaces/IERC20.sol";
+import "../utils/ECDSA.sol";
 
 /**
  * @title Ofm (OFM) ERC20 token
@@ -385,7 +386,7 @@ contract OfmERC20 is IERC20, AccessControl {
    * @dev IERC20 `function totalSupply() external view returns (uint256)`
    *
    */
-  function totalSupply() public view override returns (uint256) {
+  function totalSupply() external view override returns (uint256) {
     return _totalSupply;
   }
 
@@ -397,7 +398,7 @@ contract OfmERC20 is IERC20, AccessControl {
    * @param _owner the address to query the the balance for
    * @return balance an amount of tokens owned by the address specified
    */
-  function balanceOf(address _owner) public view override returns (uint256 balance) {
+  function balanceOf(address _owner) external view override returns (uint256) {
     // read the balance and return
     return tokenBalances[_owner];
   }
@@ -423,7 +424,7 @@ contract OfmERC20 is IERC20, AccessControl {
    *      be greater than zero
    * @return success true on success, throws otherwise
    */
-  function transfer(address _to, uint256 _value) public override returns (bool success) {
+  function transfer(address _to, uint256 _value) external override returns (bool) {
     // just delegate call to `transferFrom`,
     // `FEATURE_TRANSFERS` is verified inside it
     return transferFrom(msg.sender, _to, _value);
@@ -454,7 +455,7 @@ contract OfmERC20 is IERC20, AccessControl {
    *      be greater than zero
    * @return success true on success, throws otherwise
    */
-  function transferFrom(address _from, address _to, uint256 _value) public override returns (bool success) {
+  function transferFrom(address _from, address _to, uint256 _value) public override returns (bool) {
     // depending on `FEATURE_UNSAFE_TRANSFERS` we execute either safe (default)
     // or unsafe transfer
     // if `FEATURE_UNSAFE_TRANSFERS` is enabled
@@ -641,7 +642,7 @@ contract OfmERC20 is IERC20, AccessControl {
    *      transfer on behalf of the token owner
    * @return success true on success, throws otherwise
    */
-  function approve(address _spender, uint256 _value) public override returns (bool success) {
+  function approve(address _spender, uint256 _value) public override returns (bool) {
     // non-zero spender address check - Zeppelin
     // obviously, zero spender address is a client mistake
     // it's not part of ERC20 standard but it's reasonable to fail fast
@@ -676,7 +677,7 @@ contract OfmERC20 is IERC20, AccessControl {
    * @return remaining an amount of tokens approved address `_spender` can transfer on behalf
    *      of token owner `_owner`
    */
-  function allowance(address _owner, address _spender) public view override returns (uint256 remaining) {
+  function allowance(address _owner, address _spender) external view override returns (uint256) {
     // read the value from storage and return
     return transferAllowances[_owner][_spender];
   }
@@ -697,7 +698,7 @@ contract OfmERC20 is IERC20, AccessControl {
    * @param _value an amount of tokens to increase by
    * @return success true on success, throws otherwise
    */
-  function increaseAllowance(address _spender, uint256 _value) public virtual returns (bool) {
+  function increaseAllowance(address _spender, uint256 _value) external virtual returns (bool) {
     // read current allowance value
     uint256 currentVal = transferAllowances[msg.sender][_spender];
 
@@ -720,7 +721,7 @@ contract OfmERC20 is IERC20, AccessControl {
    * @param _value an amount of tokens to decrease by
    * @return success true on success, throws otherwise
    */
-  function decreaseAllowance(address _spender, uint256 _value) public virtual returns (bool) {
+  function decreaseAllowance(address _spender, uint256 _value) external virtual returns (bool) {
     // read current allowance value
     uint256 currentVal = transferAllowances[msg.sender][_spender];
 
@@ -796,7 +797,7 @@ contract OfmERC20 is IERC20, AccessControl {
    * @param _from an address to burn some tokens from
    * @param _value an amount of tokens to burn (destroy)
    */
-  function burn(address _from, uint256 _value) public {
+  function burn(address _from, uint256 _value) external {
     // non-zero burn value check
     require(_value != 0, "zero value burn");
 
@@ -888,7 +889,7 @@ contract OfmERC20 is IERC20, AccessControl {
    * @return past cumulative voting power of the account,
    *      sum of token balances of all its voting delegators at block number `_blockNum`
    */
-  function getVotingPowerAt(address _of, uint256 _blockNum) public view returns (uint256) {
+  function getVotingPowerAt(address _of, uint256 _blockNum) external view returns (uint256) {
     // make sure block number is not in the past (not the finalized block)
     require(_blockNum < block.number, "not yet determined"); // Compound msg
 
@@ -929,7 +930,7 @@ contract OfmERC20 is IERC20, AccessControl {
    * @param _of delegate to query voting power history for
    * @return voting power history array for the delegate of interest
    */
-  function getVotingPowerHistory(address _of) public view returns(VotingPowerRecord[] memory) {
+  function getVotingPowerHistory(address _of) external view returns(VotingPowerRecord[] memory) {
     // return an entire array as memory
     return votingPowerHistory[_of];
   }
@@ -941,7 +942,7 @@ contract OfmERC20 is IERC20, AccessControl {
    * @param _of delegate to query voting power history length for
    * @return voting power history array length for the delegate of interest
    */
-  function getVotingPowerHistoryLength(address _of) public view returns(uint256) {
+  function getVotingPowerHistoryLength(address _of) external view returns(uint256) {
     // read array length and return
     return votingPowerHistory[_of].length;
   }
@@ -954,7 +955,7 @@ contract OfmERC20 is IERC20, AccessControl {
    *
    * @param _to address to delegate voting power to
    */
-  function delegate(address _to) public {
+  function delegate(address _to) external {
     // verify delegations are enabled
     require(isFeatureEnabled(FEATURE_DELEGATIONS), "delegations are disabled");
     // delegate call to `__delegate`
@@ -978,7 +979,7 @@ contract OfmERC20 is IERC20, AccessControl {
    * @param r half of the ECDSA signature pair
    * @param s half of the ECDSA signature pair
    */
-  function delegateWithSig(address _to, uint256 _nonce, uint256 _exp, uint8 v, bytes32 r, bytes32 s) public {
+  function delegateWithSig(address _to, uint256 _nonce, uint256 _exp, uint8 v, bytes32 r, bytes32 s) external {
     // verify delegations on behalf are enabled
     require(isFeatureEnabled(FEATURE_DELEGATIONS_ON_BEHALF), "delegations on behalf are disabled");
 
@@ -992,7 +993,7 @@ contract OfmERC20 is IERC20, AccessControl {
     bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, hashStruct));
 
     // recover the address who signed the message with v, r, s
-    address signer = ecrecover(digest, v, r, s);
+    address signer = ECDSA.recover(digest, v, r, s);
 
     // perform message integrity and security validations
     require(signer != address(0), "invalid signature"); // Compound msg

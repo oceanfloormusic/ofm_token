@@ -3,31 +3,54 @@ pragma solidity 0.8.1;
 
 import "../utils/ERC20.sol";
 import "../utils/AccessControl.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract OfmxERC20 is ERC20("OFM Market", "Ofmx"), AccessControl {
-  /**
-   * @dev Smart contract unique identifier, a random number
-   * @dev Should be regenerated each time smart contact source code is changed
-   *      and changes smart contract itself is to be redeployed
-   * @dev Generated using https://www.random.org/bytes/
-   */
-  uint256 public constant TOKEN_UID = 0xac3051b8d4f50966afb632468a4f61483ae6a953b74e387a01ef94316d6b7d62;
+contract OfmxERC20 is
+    ERC20("OFM Market Utility", "Ofmx"),
+    AccessControl,
+    Pausable,
+    Ownable
+{
+    /**
+     * @dev Smart contract unique identifier, a random number
+     * @dev Should be regenerated each time smart contact source code is changed
+     *      and changes smart contract itself is to be redeployed
+     * @dev Generated using https://www.random.org/bytes/
+     */
+    uint256 public constant TOKEN_UID =
+        0x506c755d00080277aed3c606fab05fcff22d707e477ea5ebd2efdf3a58e96e01;
 
-  /**
-   * @notice Must be called by ROLE_TOKEN_CREATOR addresses.
-   *
-   * @param recipient address to receive the tokens.
-   * @param amount number of tokens to be minted.
-   */
-  function mint(address recipient, uint256 amount) external {
-    require(isSenderInRole(ROLE_TOKEN_CREATOR), "insufficient privileges (ROLE_TOKEN_CREATOR required)");
-    _mint(recipient, amount);
-  }
+    /**
+     * @notice Must be called by ROLE_TOKEN_CREATOR addresses.
+     *
+     * @param recipient address to receive the tokens.
+     * @param amount number of tokens to be minted.
+     */
+    function mint(address recipient, uint256 amount) external {
+        require(
+            isSenderInRole(ROLE_TOKEN_CREATOR),
+            "insufficient privileges (ROLE_TOKEN_CREATOR required)"
+        );
+        _mint(recipient, amount);
+    }
 
-  /**
-   * @param amount number of tokens to be burned.
-   */
-  function burn(uint256 amount) external {
-    _burn(msg.sender, amount);
-  }
+    /**
+     * @param amount number of tokens to be burned.
+     */
+    function burn(uint256 amount) external {
+        _burn(msg.sender, amount);
+    }
+
+    /**
+     * @notice To be called by owner only to pause/unpause the contract.
+     * @param shouldPause boolean to toggle contract pause state.
+     */
+    function pause(bool shouldPause) external onlyOwner {
+        if (shouldPause) {
+            _pause();
+        } else {
+            _unpause();
+        }
+    }
 }
