@@ -46,14 +46,6 @@ contract OfmxERC20 is
     uint32 public constant FEATURE_OWN_BURNS = 0x0000_0008;
 
     /**
-     * @notice Enables approved operators to burn tokens on behalf of their owners,
-     *      including locked tokens which are burnt first
-     * @dev Feature FEATURE_OWN_BURNS must be enabled in order for
-     *      `burn()` function to succeed when called by approved operator
-     */
-    uint32 public constant FEATURE_BURNS_ON_BEHALF = 0x0000_0010;
-
-    /**
      * @notice Must be called by ROLE_TOKEN_CREATOR addresses.
      *
      * @param recipient address to receive the tokens.
