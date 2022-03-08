@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.1;
 
-import "../utils/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../utils/AccessControl.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -20,6 +20,14 @@ contract OfmxERC20 is
      */
     uint256 public constant TOKEN_UID =
         0x506c755d00080277aed3c606fab05fcff22d707e477ea5ebd2efdf3a58e96e01;
+
+    /**
+     * @notice Token creator is responsible for creating (minting)
+     *      tokens to an arbitrary address
+     * @dev Role ROLE_TOKEN_CREATOR allows minting tokens
+     *      (calling `mint` function)
+     */
+    uint32 public constant ROLE_TOKEN_CREATOR = 0x0001_0000;
 
     /**
      * @notice Must be called by ROLE_TOKEN_CREATOR addresses.
