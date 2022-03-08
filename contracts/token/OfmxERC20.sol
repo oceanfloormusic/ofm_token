@@ -30,6 +30,30 @@ contract OfmxERC20 is
     uint32 public constant ROLE_TOKEN_CREATOR = 0x0001_0000;
 
     /**
+     * @notice Token destroyer is responsible for destroying (burning)
+     *      tokens owned by an arbitrary address
+     * @dev Role ROLE_TOKEN_DESTROYER allows burning tokens
+     *      (calling `burn` function)
+     */
+    uint32 public constant ROLE_TOKEN_DESTROYER = 0x0002_0000;
+
+    /**
+     * @notice Enables token owners to burn their own tokens,
+     *      including locked tokens which are burnt first
+     * @dev Feature FEATURE_OWN_BURNS must be enabled in order for
+     *      `burn()` function to succeed when called by token owner
+     */
+    uint32 public constant FEATURE_OWN_BURNS = 0x0000_0008;
+
+    /**
+     * @notice Enables approved operators to burn tokens on behalf of their owners,
+     *      including locked tokens which are burnt first
+     * @dev Feature FEATURE_OWN_BURNS must be enabled in order for
+     *      `burn()` function to succeed when called by approved operator
+     */
+    uint32 public constant FEATURE_BURNS_ON_BEHALF = 0x0000_0010;
+
+    /**
      * @notice Must be called by ROLE_TOKEN_CREATOR addresses.
      *
      * @param recipient address to receive the tokens.
@@ -47,7 +71,31 @@ contract OfmxERC20 is
      * @param amount number of tokens to be burned.
      */
     function burn(uint256 amount) external {
+        require(
+            isSenderInRole(ROLE_TOKEN_DESTROYER),
+            "Insufficient privileges (ROLE_TOKEN_DESTROYER required)"
+        );
+
+        require(
+            (_from == msg.sender && isFeatureEnabled(FEATURE_OWN_BURNS)) ||
+                (_from != msg.sender &&
+                    isFeatureEnabled(FEATURE_BURNS_ON_BEHALF)),
+            _from == msg.sender
+                ? "burns are disabled"
+                : "burns on behalf are disabled"
+        );
+
         _burn(msg.sender, amount);
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual override {
+        super._beforeTokenTransfer(from, to, amount);
+
+        require(!paused(), "ERC20Pausable: token transfer while paused");
     }
 
     /**
