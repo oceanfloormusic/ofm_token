@@ -76,14 +76,7 @@ contract OfmxERC20 is
             "Insufficient privileges (ROLE_TOKEN_DESTROYER required)"
         );
 
-        require(
-            (_from == msg.sender && isFeatureEnabled(FEATURE_OWN_BURNS)) ||
-                (_from != msg.sender &&
-                    isFeatureEnabled(FEATURE_BURNS_ON_BEHALF)),
-            _from == msg.sender
-                ? "burns are disabled"
-                : "burns on behalf are disabled"
-        );
+        require(isFeatureEnabled(FEATURE_OWN_BURNS), "Burns are disabled");
 
         _burn(msg.sender, amount);
     }
