@@ -21,7 +21,7 @@ contract("OfmxERC20", async (accounts) => {
         const balance = (await ofmxERC20.balanceOf(recipient)).toString()
 
         // verify that the tokens were minted to recipient
-        assert.equal(balance, web3.utils.toBN(200 * (10 ** 18)), 'balance of recipient and amount minted to it must be equal')
+        assert.equal(balance, web3.utils.toBN(200 * (10 ** 18)), 'recipient balance not equal to expected balance')
     })
 
     it('burns Ofmx tokens', async () => {
@@ -33,10 +33,10 @@ contract("OfmxERC20", async (accounts) => {
 
         // burn some ofmx tokens
         await ofmxERC20.burn(web3.utils.toBN(100 * (10 ** 18)), { from: operator })
-        const finalBalance = (await ofmxERC20.balanceOf(operator)).toString();
+        const operatorBalance = (await ofmxERC20.balanceOf(operator)).toString();
 
         // verify that the tokens were burnt
-        assert.equal(finalBalance, web3.utils.toBN(100 * (10 ** 18)))
+        assert.equal(operatorBalance, web3.utils.toBN(100 * (10 ** 18)), 'operator balance not equal to expected balance')
     })
 
     it('pauses the state of the contract', async () => {
@@ -60,7 +60,7 @@ contract("OfmxERC20", async (accounts) => {
         const recipientBalance = (await ofmxERC20.balanceOf(recipient)).toString();
 
         // verify the correct balance
-        assert.equal(recipientBalance, web3.utils.toBN(400 * (10 ** 18)))
+        assert.equal(recipientBalance, web3.utils.toBN(400 * (10 ** 18)), 'recipient balance not equal to expected balance')
 
     })
 })
