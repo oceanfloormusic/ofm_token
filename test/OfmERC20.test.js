@@ -1,6 +1,9 @@
 const { expectRevert } = require('@openzeppelin/test-helpers');
 const { assert } = require('chai');
 const ofmERC20 = artifacts.require("OfmERC20");
+const { fromRpcSig } = require('ethereumjs-util');
+const ethSigUtil = require('eth-sig-util');
+const { web3 } = require('@openzeppelin/test-helpers/src/setup');
 
 const ROLE_ROLE_MANAGER = web3.utils.toBN("0x8000000000000000000000000000000000000000000000000000000000000000");
 const FEATURE_TRANSFERS = 0x0000_0001;
